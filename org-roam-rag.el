@@ -113,6 +113,10 @@ context documents retrieved at %2$s by `format' function"
                         (org-roam-rag--make-llm-prompt prompt)
                         callback callback #'ignore)))
 
+(defcustom org-roam-rag-db-location
+  (locate-user-emacs-file "org-roam-rag.duckdb")
+  "The path to file where the Org-Roam-RAG database is stored.")
+
 (defun org-roam-rag--retrieve (question)
   "Retrieve documents for QUESTION")
 
