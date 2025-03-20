@@ -5,7 +5,7 @@
 ;; Author: Hiroyuki Yamada
 ;; Created: 2025-03-20
 ;; Package-Version: 1.0.0
-;; Package-Requires: (llm org-roam)
+;; Package-Requires: (llm markdown-mode org-roam)
 
 
 ;; This file is not part of GNU Emacs.
@@ -33,6 +33,7 @@
 
 ;;; Code:
 (require 'llm)
+(require 'markdown-mode)
 (require 'org-roam)
 
 

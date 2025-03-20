@@ -13,7 +13,11 @@
           pname = "org-roam-rag";
           version = "v0.0.1";
           src = ./.;
-          packageRequires = with epkgs; [llm org-roam];
+          packageRequires = with epkgs; [
+            llm
+            markdown-mode
+            org-roam
+          ];
           buildInputs = packageRequires;
         }));
 
