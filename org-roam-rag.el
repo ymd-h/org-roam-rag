@@ -37,7 +37,7 @@
 
 
 (defgroup org-roam-rag nil
-  "RAG over Org Roam"
+  "RAG over Org Roam."
   :group 'external)
 
 (defvar org-roam-rag-llm-provider nil
