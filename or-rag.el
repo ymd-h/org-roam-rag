@@ -105,7 +105,7 @@ context documents retrieved at %2$s by `format' function"
       (erase-buffer)
       (insert response))))
 
-(defun or-rag--chat-steaming (prompt)
+(defun or-rag--chat-streaming (prompt)
   "Chat with LLM streaming using PROMPT."
   (let* ((buffer (or-rag--response-buffer))
          (callback #'(lambda (response)
