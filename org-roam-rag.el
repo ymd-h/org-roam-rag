@@ -1,4 +1,4 @@
-;;; or-rag.el --- RAG over Org Roam -*- lexical-binding: t; -*-
+;;; org-roam-rag.el --- RAG over Org Roam -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024 Hiroyuki Yamada
 
@@ -28,7 +28,7 @@
 ;;; Commentary:
 ;; This package provides RAG functionalities over org-roam files using LLM.
 ;; This package calls LLM through ahyatt/llm <https://github.com/ahyatt/llm>,
-;; so that you need to set one of the llm providers to `or-rag-llm-provider'.
+;; so that you need to set one of the LLM providers to `orr-llm-provider'.
 
 
 ;;; Code:
@@ -37,25 +37,25 @@
 (require 'org-roam)
 
 
-(defgroup or-rag nil
+(defgroup org-roam-rag nil
   "RAG over Org Roam."
   :group 'external)
 
-(defvar or-rag-llm-provider nil
-  "LLM provider for or-rag.")
+(defvar orr-llm-provider nil
+  "LLM provider for org-roam-rag.")
 
 
-(defcustom or-rag-llm-system-prompt
+(defcustom orr-llm-system-prompt
   "You are skillfull, kind, and friendly assistant.
 Users will ask you questions with some context documents.
 You must answer their questions based on these context documents.
 These context documents are written in emacs org-mode."
-  "System Prompt to guid LLM"
+  "System Prompt to guide LLM"
   :type '(string)
-  :group 'or-rag)
+  :group 'org-roam-rag)
 
 
-(defcustom or-rag-llm-user-prompt
+(defcustom orr-llm-user-prompt
   "Please answer user question based on context documents.
 
 User Question
@@ -69,64 +69,73 @@ Context Documents
   "Prompt Template for RAG.
 
 User question will be inserted at %1$s,
-context documents retrieved at %2$s by `format' function"
+retrieved context documents will be inserted at %2$s by `format' function."
   :type '(string)
-  :group 'or-rag)
+  :group 'org-roam-rag)
 
 
-(defun or-rag--make-llm-prompt (prompt)
+(defun orr--make-llm-prompt (prompt)
   "Make LLM prompt from PROMPT."
   (if (fboundp 'llm-make-chat-prompt)
-      (llm-make-chat-prompt prompt :context or-rag-llm-system-prompt)
+      (llm-make-chat-prompt prompt :context orr-llm-system-prompt)
     (make-llm-chat-prompt
-     :context or-rag-system-prompt
+     :context orr-system-prompt
      :interactions
      (list (make-llm-chat-prompt-interaction :role 'user :content prompt)))))
 
-(defcustom or-rag-response-buffer-name
-  "*or-rag*" "Buffer name of LLM response."
+(defcustom orr-response-buffer-name
+  "*org-roam-rag*" "Buffer name of LLM response."
   :type '(string)
-  :group 'or-rag)
+  :group 'org-roam-rag)
 
 
-(defun or-rag--response-buffer ()
-  "Create and display or-rag response buffer."
-  (let ((buffer (generate-new-buffer or-rag-response-buffer-name)))
+(defun orr--response-buffer ()
+  "Create and display org-roam-rag response buffer."
+  (let ((buffer (generate-new-buffer orr-response-buffer-name)))
     (save-excursion
       (with-current-buffer buffer
         (display-buffer buffer)
         (markdown-mode)))
     buffer))
 
-(defun or-rag--show-response-streaming (buffer response)
+(defun orr--show-response-streaming (buffer response)
   "Show LLM (partial) RESPONSE at specified BUFFER."
   (save-excursion
     (with-current-buffer buffer
       (erase-buffer)
       (insert response))))
 
-(defun or-rag--chat-streaming (prompt)
+(defun orr--chat-streaming (prompt)
   "Chat with LLM streaming using PROMPT."
-  (let* ((buffer (or-rag--response-buffer))
+  (let* ((buffer (orr--response-buffer))
          (callback #'(lambda (response)
-                       (or-rag--show-response-streaming buffer response))))
-    (llm-chat-streaming or-rag-llm-provider
-                        (or-rag--make-llm-prompt prompt)
+                       (orr--show-response-streaming buffer response))))
+    (llm-chat-streaming orr-llm-provider
+                        (orr--make-llm-prompt prompt)
                         callback callback #'ignore)))
 
-(defcustom or-rag-db-location
-  (locate-user-emacs-file "or-rag.duckdb")
-  "The path to file where the Or-Rag database is stored.")
+(defcustom orr-db-location
+  (locate-user-emacs-file "org-roam-rag.duckdb")
+  "The path to file where the Org Roam RAG database is stored.")
 
-(defun or-rag--retrieve (question)
+(defun orr--query-db (query)
+  "Query db with QUERY."
+  ())
+
+(defun orr-rebuild-db ()
+  "Rebuild Org Roam RAG database."
+  (let* ((nodes (org-roam-node-list)))
+    ))
+
+(defun orr--retrieve (question)
   "Retrieve documents for QUESTION")
 
-(defun or-rag--ask (question)
+(defun orr--ask (question)
   "Ask QUESTION to LLM."
-  (let* ((contexts (or-rag--retrieve question))
-         (prompt (format or-rag-llm-user-prompt question contexts)))
-    or-rag--chat-streaming prompt))
+  (let* ((contexts (orr--retrieve question))
+         (prompt (format orr-llm-user-prompt question contexts)))
+    orr--chat-streaming prompt))
 
 
-(provide 'or-rag)
-;;; or-rag.el ends here
+(provide 'org-roam-rag)
+;;; org-roam-rag.el ends here
