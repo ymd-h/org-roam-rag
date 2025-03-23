@@ -182,7 +182,7 @@ This function must be called when initialization or changing embedding model."
   (let* ((nodes (org-roam-node-list))
          (embeddings nil))
     (save-current-buffer
-      (dolist-with-progress-reporter (node nodes) "Rebuild embeddings..."
+      (dolist-with-progress-reporter (node nodes) "Rebuild embeddings... "
         (let* ((id (org-roam-node-id node))
                (embedding (orr--embedding (orr--node-to-string node))))
           (setq embeddings (cons (cons id embedding) embeddings)))))
