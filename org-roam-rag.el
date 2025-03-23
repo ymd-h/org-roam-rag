@@ -162,7 +162,8 @@ retrieved context documents will be inserted at %2$s by `format' function."
     (concat "[" e "]")))
 
 (defun orr-rebuild-all-embeddings ()
-  "Rebuild all embeddings in Org Roam RAG database."
+  "Rebuild all embeddings in Org Roam RAG database.
+This function must be called when initialization or changing embedding model."
   (interactive)
   (let* ((nodes (org-roam-node-list))
          (embeddings nil))
