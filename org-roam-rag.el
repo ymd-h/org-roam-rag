@@ -141,7 +141,7 @@ retrieved context documents will be inserted at %2$s by `format' function."
   "Query db with QUERY."
   (let* ((q (if (length< query 100)
 				(cons "-s" query)
-			  (cons "-f" (let* ((tmp (make-temp-file "orr-query" nil ".sql"
+			  (cons "-f" (let* ((tmp (make-temp-file "orr-query-" nil ".sql"
 													 (concat query "\n"))))
 						   (message "Write Temporary File: %s" tmp)
 						   tmp))))
