@@ -48,8 +48,7 @@
 (defcustom orr-llm-system-prompt
   "You are skillfull, kind, and friendly assistant.
 Users will ask you questions with some context documents.
-You must answer their questions based on these context documents.
-These context documents are written in emacs org-mode."
+You must answer their questions based on these context documents."
   "System Prompt to guide LLM"
   :type '(string)
   :group 'org-roam-rag)
