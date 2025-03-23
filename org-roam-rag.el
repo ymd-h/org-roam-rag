@@ -73,6 +73,31 @@ retrieved context documents will be inserted at %2$s by `format' function."
   :group 'org-roam-rag)
 
 
+(defcustom orr-response-buffer-name
+  "*org-roam-rag*" "Buffer name of LLM response."
+  :type '(string)
+  :group 'org-roam-rag)
+
+
+(defcustom orr-duckdb-file
+  (locate-user-emacs-file "org-roam-rag.duckdb")
+  "The path to file where the Org Roam RAG database is stored."
+  :type '(string)
+  :group 'org-roam-rag)
+
+
+(defcustom orr-duckdb-executable
+  "duckdb" "DuckDB executable."
+  :type '(string)
+  :group 'org-roam-rag)
+
+
+(defcustom orr-top-contexts
+  5 "Number of top contexts for retrieval"
+  :type '(integer)
+  :group 'org-roam-rag)
+
+
 (defun orr--make-llm-prompt (prompt)
   "Make LLM prompt from PROMPT."
   (if (fboundp 'llm-make-chat-prompt)
@@ -81,11 +106,6 @@ retrieved context documents will be inserted at %2$s by `format' function."
      :context orr-system-prompt
      :interactions
      (list (make-llm-chat-prompt-interaction :role 'user :content prompt)))))
-
-(defcustom orr-response-buffer-name
-  "*org-roam-rag*" "Buffer name of LLM response."
-  :type '(string)
-  :group 'org-roam-rag)
 
 
 (defun orr--response-buffer ()
@@ -112,17 +132,6 @@ retrieved context documents will be inserted at %2$s by `format' function."
     (llm-chat-streaming orr-llm-provider
                         (orr--make-llm-prompt prompt)
                         callback callback #'ignore)))
-
-(defcustom orr-duckdb-file
-  (locate-user-emacs-file "org-roam-rag.duckdb")
-  "The path to file where the Org Roam RAG database is stored."
-  :type '(string)
-  :group 'org-roam-rag)
-
-(defcustom orr-duckdb-executable
-  "duckdb" "DuckDB executable."
-  :type '(string)
-  :group 'org-roam-rag)
 
 (defun orr--query-db (query)
   "Query db with QUERY."
@@ -162,11 +171,6 @@ retrieved context documents will be inserted at %2$s by `format' function."
                              (org-export-as 'md t nil nil)))))
           (setq embeddings (cons (cons id embedding) embeddings)))) ; end-of dolist
       (orr--query-db (orr--create-embedding-table-query embeddings)))))
-
-(defcustom orr-top-contexts
-  5 "Number of top contexts for retrieval"
-  :type '(integer)
-  :group 'org-roam-rag)
 
 (defun orr--create-retrieve-query (embedding)
   "Create retrieve query from EMBEDDING"
