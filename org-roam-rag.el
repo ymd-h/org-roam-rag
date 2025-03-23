@@ -128,17 +128,17 @@ retrieved context documents will be inserted at %2$s by `format' function."
 (defun orr--chat-streaming (prompt)
   "Chat with LLM streaming using PROMPT."
   (let* ((buffer (orr--response-buffer))
-         (callback #'(lambda (response)
-                       (orr--show-response-streaming buffer response))))
+         (callback (lambda (response)
+                     (orr--show-response-streaming buffer response))))
     (llm-chat-streaming orr-llm-provider
                         (orr--make-llm-prompt prompt)
                         callback callback #'ignore)))
 
 (defun orr--query-db (query)
   "Query db with QUERY."
-  (mapcar #'(lambda (line) (read (concat "(" line ")")))
+  (mapcar (lambda (line) (read (concat "(" line ")")))
           (seq-filter
-           #'(lambda (line) (not (equal line "")))
+           (lambda (line) (not (equal line "")))
            (process-lines
             orr-duckdb-executable "-noheader" "-column" "-s" query orr-duckdb-file))))
 
@@ -188,7 +188,7 @@ SELECT \"id\" FROM similarity ORDER BY \"similarity\" LIMITS %2$d;"
          (ids (orr--query-db query)))
     (save-current-buffer
       (mapconcat
-       #'(lambda (id) (progn (org-id-open id) (org-export-as 'md t nil nil)))
+       (lambda (id) (progn (org-id-open id) (org-export-as 'md t nil nil)))
        ids "\n\n----\n\n"))))
 
 (defun orr--ask (question)
