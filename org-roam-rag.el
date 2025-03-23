@@ -165,15 +165,14 @@ retrieved context documents will be inserted at %2$s by `format' function."
   (let* ((nodes (org-roam-node-list))
          (embeddings nil))
     (save-current-buffer
-      (dolist-with-progress-reporter (node nodes embeddings)
-          "Rebuild embeddings..."
+      (dolist-with-progress-reporter (node nodes) "Rebuild embeddings..."
         (let* ((id (org-roam-node-id node))
                (embedding (orr--embedding
                            (progn
                              (org-roam-node-open node)
                              (org-export-as 'md t nil nil)))))
-          (setq embeddings (cons (cons id embedding) embeddings)))) ; end-of dolist
-      (orr--query-db (orr--create-embedding-table-query embeddings)))))
+          (setq embeddings (cons (cons id embedding) embeddings)))))
+    (orr--query-db (orr--create-embedding-table-query embeddings))))
 
 (defun orr--create-retrieve-query (embedding)
   "Create retrieve query from EMBEDDING."
