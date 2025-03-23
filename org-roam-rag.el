@@ -160,8 +160,9 @@ retrieved context documents will be inserted at %2$s by `format' function."
              (llm-embedding orr-llm-provider text) ",")))
     (concat "[" e "]")))
 
-(defun orr-rebuild-all-embeddings ()
+(defun org-roam-rag-rebuild-all-embeddings ()
   "Rebuild all embeddings in Org Roam RAG database."
+  (interactive)
   (let* ((nodes (org-roam-node-list))
          (embeddings nil))
     (save-current-buffer
