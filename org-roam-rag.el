@@ -146,7 +146,7 @@ retrieved context documents will be inserted at %2$s by `format' function."
   (let* ((e (mapconcat
              (lambda (d) (format "%s" d))
              (llm-embedding orr-llm-provider text) ",")))
-    (concat "[" e "]"))
+    (concat "[" e "]")))
 
 (defun orr-rebuild-all-embeddings ()
   "Rebuild all embeddings in Org Roam RAG database."
