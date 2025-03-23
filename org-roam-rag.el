@@ -35,6 +35,7 @@
 (require 'llm)
 (require 'markdown-mode)
 (require 'org-roam)
+(require 'ox-md)
 
 
 (defgroup org-roam-rag nil
