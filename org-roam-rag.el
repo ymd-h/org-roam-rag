@@ -131,7 +131,7 @@ retrieved context documents will be inserted at %2$s by `format' function."
          (callback (lambda (response)
                      (orr--show-response-streaming buffer response)))
 		 (error-callback
-		  (lambda (error-symbol msg) (error "Error %1$s: %2$s." error-symbol msg))))
+		  (lambda (error-symbol msg) (error "Error %1$s: %2$s" error-symbol msg))))
     (llm-chat-streaming orr-llm-provider
                         (orr--make-llm-prompt prompt)
                         callback callback error-callback)))
