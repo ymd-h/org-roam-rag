@@ -196,9 +196,9 @@ This function must be called when initialization or changing embedding model."
 (defun orr--create-retrieve-query (embedding)
   "Create retrieve query from EMBEDDING."
   (format
-   "WITH similarity AS
-(SELECT array_cosine_distance(\"embedding\", %1$s) AS \"similarity\" FROM embedding)
-SELECT \"id\" FROM similarity ORDER BY \"similarity\" LIMITS %2$d;"
+   "WITH s AS
+(SELECT id, list_cosine_similarity(embedding, %1$s) AS similarity FROM embedding)
+SELECT id FROM s ORDER BY similarity DESC LIMIT %2$d;"
    embedding orr-top-contexts))
 
 (defun orr--retrieve (question)
