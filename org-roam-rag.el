@@ -212,7 +212,7 @@ SELECT '\"' || id || '\"' AS id FROM s ORDER BY similarity DESC LIMIT %2$d;"
   "Ask QUESTION to LLM."
   (let* ((contexts (orr--retrieve question))
          (prompt (format orr-llm-user-prompt question contexts)))
-    orr--chat-streaming prompt))
+    (orr--chat-streaming prompt)))
 
 (defun orr-ask (question)
   "Ask QUESTION to LLM based on Org Roam."
