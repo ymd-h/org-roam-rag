@@ -161,6 +161,17 @@ retrieved context documents will be inserted at %2$s by `format' function."
              (llm-embedding orr-llm-provider text) ",")))
     (concat "[" e "]")))
 
+(defun orr--node-to-string (node)
+  "Convert NODE to markdown string."
+  (let* ((orig org-export-with-broken-links)
+		 (text (progn
+				 (setq org-export-with-broken-links t)
+				 (org-roam-node-open node nil t)
+				 (unless (= 1 (point)) (org-narrow-to-subtree))
+				 (org-export-as 'md))))
+	(setq org-export-with-broken-links orig)
+	text))
+
 (defun orr-rebuild-all-embeddings ()
   "Rebuild all embeddings in Org Roam RAG database.
 This function must be called when initialization or changing embedding model."
@@ -170,11 +181,7 @@ This function must be called when initialization or changing embedding model."
     (save-current-buffer
       (dolist-with-progress-reporter (node nodes) "Rebuild embeddings..."
         (let* ((id (org-roam-node-id node))
-               (embedding (orr--embedding
-                           (progn
-                             (org-roam-node-open node nil t)
-							 (unless (= 1 (point)) (org-narrow-to-subtree))
-                             (org-export-as 'md)))))
+               (embedding (orr--embedding (orr--node-to-string node))))
           (setq embeddings (cons (cons id embedding) embeddings)))))
     (orr--query-db (orr--create-embedding-table-query embeddings))))
 
@@ -193,7 +200,7 @@ SELECT \"id\" FROM similarity ORDER BY \"similarity\" LIMITS %2$d;"
          (ids (orr--query-db query)))
     (save-current-buffer
       (mapconcat
-       (lambda (id) (progn (org-id-open id) (org-export-as 'md t nil nil)))
+       (lambda (id) (orr--node-to-string (org-roam-node-from-id id)))
        ids "\n\n----\n\n"))))
 
 (defun orr--ask (question)
