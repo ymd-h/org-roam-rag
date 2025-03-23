@@ -141,7 +141,10 @@ retrieved context documents will be inserted at %2$s by `format' function."
   "Query db with QUERY."
   (let* ((q (if (length< query 100)
 				(cons "-s" query)
-			  (cons "-f" (make-temp-file "orr-query" nil ".sql" query))))
+			  (cons "-f" (let* ((tmp (make-temp-file "orr-query" nil ".sql"
+													 (concat query "\n")))
+						   (message "Write Temporary File: %s" tmp)
+						   tmp))))
 		 (out (process-lines orr-duckdb-executable
 							 "-noheader" "-column" (car q) (cdr q)
 							 orr-duckdb-executable)))
