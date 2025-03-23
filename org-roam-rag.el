@@ -196,7 +196,7 @@ This function must be called when initialization or changing embedding model."
   (format
    "WITH s AS
 (SELECT id, list_cosine_similarity(embedding, %1$s) AS similarity FROM embedding)
-SELECT id FROM s ORDER BY similarity DESC LIMIT %2$d;"
+SELECT '\"' || id || '\"' AS id FROM s ORDER BY similarity DESC LIMIT %2$d;"
    embedding orr-top-contexts))
 
 (defun orr--retrieve (question)
