@@ -50,7 +50,7 @@
   "You are skillfull, kind, and friendly assistant.
 Users will ask you questions with some context documents.
 You must answer their questions based on these context documents."
-  "System Prompt to guide LLM"
+  "System Prompt to guide LLM."
   :type '(string)
   :group 'org-roam-rag)
 
@@ -94,7 +94,7 @@ retrieved context documents will be inserted at %2$s by `format' function."
 
 
 (defcustom orr-top-contexts
-  5 "Number of top contexts for retrieval"
+  5 "Number of top contexts for retrieval."
   :type '(integer)
   :group 'org-roam-rag)
 
@@ -174,7 +174,7 @@ retrieved context documents will be inserted at %2$s by `format' function."
       (orr--query-db (orr--create-embedding-table-query embeddings)))))
 
 (defun orr--create-retrieve-query (embedding)
-  "Create retrieve query from EMBEDDING"
+  "Create retrieve query from EMBEDDING."
   (format
    "WITH similarity AS
 (SELECT array_cosine_distance(\"embedding\", %1$s) AS \"similarity\" FROM embedding)
@@ -182,7 +182,7 @@ SELECT \"id\" FROM similarity ORDER BY \"similarity\" LIMITS %2$d;"
    embedding orr-top-contexts))
 
 (defun orr--retrieve (question)
-  "Retrieve contexts for QUESTION"
+  "Retrieve contexts for QUESTION."
   (let* ((embedding (orr--embedding question))
          (query (orr--create-retrieve-query embedding))
          (ids (orr--query-db query)))
