@@ -205,8 +205,8 @@ SELECT id FROM s ORDER BY similarity DESC LIMIT %2$d;"
          (query (orr--create-retrieve-query embedding))
          (ids (orr--query-db query)))
     (mapconcat
-     (lambda (id) (orr--node-to-string (org-roam-node-from-id id))
-       ids "\n\n----\n\n"))))
+     (lambda (id) (orr--node-to-string (org-roam-node-from-id id)))
+     ids "\n\n----\n\n")))
 
 (defun orr--ask (question)
   "Ask QUESTION to LLM."
