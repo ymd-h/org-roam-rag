@@ -171,8 +171,9 @@ retrieved context documents will be inserted at %2$s by `format' function."
         (let* ((id (org-roam-node-id node))
                (embedding (orr--embedding
                            (progn
-                             (org-roam-node-open node)
-                             (org-export-as 'md t nil nil)))))
+                             (org-roam-node-open node nil t)
+							 (unless (= 1 (point)) (org-narrow-to-subtree))
+                             (org-export-as 'md)))))
           (setq embeddings (cons (cons id embedding) embeddings)))))
     (orr--query-db (orr--create-embedding-table-query embeddings))))
 
