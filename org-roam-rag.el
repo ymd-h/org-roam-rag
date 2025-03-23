@@ -205,7 +205,7 @@ SELECT '\"' || id || '\"' AS id FROM s ORDER BY similarity DESC LIMIT %2$d;"
          (query (orr--create-retrieve-query embedding))
          (ids (orr--query-db query)))
     (mapconcat
-     (lambda (id) (orr--node-to-string (org-roam-node-from-id id)))
+     (lambda (id) (orr--node-to-string (org-roam-node-from-id (nth 0 id))))
      ids "\n\n----\n\n")))
 
 (defun orr--ask (question)
