@@ -161,7 +161,7 @@ retrieved context documents will be inserted at %2$s by `format' function."
              (llm-embedding orr-llm-provider text) ",")))
     (concat "[" e "]")))
 
-(defun org-roam-rag-rebuild-all-embeddings ()
+(defun orr-rebuild-all-embeddings ()
   "Rebuild all embeddings in Org Roam RAG database."
   (interactive)
   (let* ((nodes (org-roam-node-list))
@@ -201,12 +201,12 @@ SELECT \"id\" FROM similarity ORDER BY \"similarity\" LIMITS %2$d;"
          (prompt (format orr-llm-user-prompt question contexts)))
     orr--chat-streaming prompt))
 
-(defun org-roam-rag-ask (question)
+(defun orr-ask (question)
   "Ask QUESTION to LLM based on Org Roam."
   (interactive "sQuestion: ")
   (orr--ask question))
 
-(defun org-roam-rag-ask-region (start end)
+(defun orr-ask-region (start end)
   "Ask question to LLM based on Org Roam.
 Argument START is regions start.
 Argument END is region end."
@@ -215,7 +215,7 @@ Argument END is region end."
       (orr--ask (buffer-substring start end))
     (message "Region is not set")))
 
-(defun org-roam-rag-ask-buffer ()
+(defun orr-ask-buffer ()
   "Ask question to LLM based on Org Roam."
   (interactive)
   (orr--ask (buffer-string)))
