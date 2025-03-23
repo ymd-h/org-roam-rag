@@ -41,6 +41,7 @@
   "RAG over Org Roam."
   :group 'external)
 
+
 (defvar orr-llm-provider nil
   "LLM provider for org-roam-rag.")
 
