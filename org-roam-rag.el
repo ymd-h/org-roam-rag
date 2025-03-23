@@ -147,7 +147,7 @@ retrieved context documents will be inserted at %2$s by `format' function."
 						   tmp))))
 		 (out (process-lines orr-duckdb-executable
 							 "-noheader" "-column" (car q) (cdr q)
-							 orr-duckdb-executable)))
+							 orr-duckdb-file)))
   (mapcar (lambda (line) (read (concat "(" line ")")))
           (seq-filter (lambda (line) (not (equal line ""))) out))))
 
