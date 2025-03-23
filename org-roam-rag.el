@@ -127,7 +127,8 @@ retrieved context documents will be inserted at %2$s by `format' function."
 (defun orr--query-db (query)
   "Query db with QUERY."
   (mapcar #'(lambda (line) (read (concat "(" line ")")))
-          (seq-filter #'(lambda (line) (not (equal line "")))
+          (seq-filter
+           #'(lambda (line) (not (equal line "")))
            (process-lines
             orr-duckdb-executable "-noheader" "-column" "-s" query orr-duckdb-file))))
 
