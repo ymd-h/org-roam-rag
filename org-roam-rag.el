@@ -114,21 +114,71 @@ retrieved context documents will be inserted at %2$s by `format' function."
                         (orr--make-llm-prompt prompt)
                         callback callback #'ignore)))
 
-(defcustom orr-db-location
+(defcustom orr-duckdb-file
   (locate-user-emacs-file "org-roam-rag.duckdb")
-  "The path to file where the Org Roam RAG database is stored.")
+  "The path to file where the Org Roam RAG database is stored."
+  :type '(string)
+  :group 'org-roam-rag)
+
+(defcustom orr-duckdb-executable
+  "duckdb" "DuckDB executable."
+  :type '(string)
+  :group 'org-roam-rag)
 
 (defun orr--query-db (query)
   "Query db with QUERY."
-  ())
+  (mapcar #'(lambda (line) (read (concat "(" line ")")))
+          (seq-filter #'(lambda (line) (not (equal line "")))
+           (process-lines
+            orr-duckdb-executable "-noheader" "-column" "-s" query orr-duckdb-file))))
 
-(defun orr-rebuild-db ()
-  "Rebuild Org Roam RAG database."
-  (let* ((nodes (org-roam-node-list)))
-    ))
+(defun orr--create-embedding-table-query (embeddings)
+  "Construct query from EMBEDDINGS."
+  (let* ((id-col (mapconcat #'car embeddings "','"))
+         (embedding-col (mapconcat #'cdr embeddings ",")))
+    (format
+     "CREATE OR REPLACE TABLE embedding AS
+(SELECT unnest(['%1$s']) AS \"id\", unnest([%2$s]) AS \"embedding\");"
+     id-col embedding-col)))
+
+(defun orr--embedding (text)
+  "Create embedding vector string for TEXT."
+  (let* ((e (mapconcat
+             (lambda (d) (format "%s" d))
+             (llm-embedding orr-llm-provider text) ",")))
+    (concat "[" e "]"))
+
+(defun orr-rebuild-all-embeddings ()
+  "Rebuild all embeddings in Org Roam RAG database."
+  (let* ((nodes (org-roam-node-list))
+         (embeddings nil))
+    (save-current-buffer
+      (dolist-with-progress-reporter (node nodes embeddings)
+          "Rebuild embeddings..."
+        (let* ((id (org-roam-node-id node))
+               (embedding (orr--embedding
+                           (progn
+                             (org-roam-node-open node)
+                             (org-export-as 'md t nil nil)))))
+          (setq embeddings (cons (cons id embedding) embeddings)))) ; end-of dolist
+      (orr--query-db (orr--create-embedding-table-query embeddings)))))
+
+(defcustom orr-top-contexts
+  5 "Number of top contexts for retrieval"
+  :type '(integer)
+  :group 'org-roam-rag)
+
+(defun orr--create-retrieve-query (embedding)
+  "Create retrieve query from EMBEDDING"
+  (format
+   "WITH similarity AS
+(SELECT array_cosine_distance(\"embedding\", %1$s) AS \"similarity\" FROM embedding)
+SELECT \"id\" FROM similarity ORDER BY \"similarity\" LIMITS %2$d;"
+   embedding orr-top-contexts))
 
 (defun orr--retrieve (question)
-  "Retrieve documents for QUESTION")
+  "Retrieve documents for QUESTION"
+  (orr--embedding question))
 
 (defun orr--ask (question)
   "Ask QUESTION to LLM."
