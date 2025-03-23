@@ -181,11 +181,10 @@ This function must be called when initialization or changing embedding model."
   (interactive)
   (let* ((nodes (org-roam-node-list))
          (embeddings nil))
-    (save-current-buffer
-      (dolist-with-progress-reporter (node nodes) "Rebuild embeddings... "
-        (let* ((id (org-roam-node-id node))
-               (embedding (orr--embedding (orr--node-to-string node))))
-          (setq embeddings (cons (cons id embedding) embeddings)))))
+    (dolist-with-progress-reporter (node nodes) "Rebuild embeddings... "
+      (let* ((id (org-roam-node-id node))
+             (embedding (orr--embedding (orr--node-to-string node))))
+        (setq embeddings (cons (cons id embedding) embeddings))))
     (orr--query-db (orr--create-embedding-table-query embeddings))))
 
 (defun orr--create-retrieve-query (embedding)
@@ -201,9 +200,8 @@ SELECT \"id\" FROM similarity ORDER BY \"similarity\" LIMITS %2$d;"
   (let* ((embedding (orr--embedding question))
          (query (orr--create-retrieve-query embedding))
          (ids (orr--query-db query)))
-    (save-current-buffer
-      (mapconcat
-       (lambda (id) (orr--node-to-string (org-roam-node-from-id id)))
+    (mapconcat
+     (lambda (id) (orr--node-to-string (org-roam-node-from-id id))
        ids "\n\n----\n\n"))))
 
 (defun orr--ask (question)
