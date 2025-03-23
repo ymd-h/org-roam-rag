@@ -177,8 +177,14 @@ SELECT \"id\" FROM similarity ORDER BY \"similarity\" LIMITS %2$d;"
    embedding orr-top-contexts))
 
 (defun orr--retrieve (question)
-  "Retrieve documents for QUESTION"
-  (orr--embedding question))
+  "Retrieve contexts for QUESTION"
+  (let* ((embedding (orr--embedding question))
+         (query (orr--create-retrieve-query embedding))
+         (ids (orr--query-db query)))
+    (save-current-buffer
+      (mapconcat
+       #'(lambda (id) (progn (org-id-open id) (org-export-as 'md t nil nil)))
+       ids "\n\n----\n\n"))))
 
 (defun orr--ask (question)
   "Ask QUESTION to LLM."
@@ -186,6 +192,24 @@ SELECT \"id\" FROM similarity ORDER BY \"similarity\" LIMITS %2$d;"
          (prompt (format orr-llm-user-prompt question contexts)))
     orr--chat-streaming prompt))
 
+(defun org-roam-rag-ask (question)
+  "Ask QUESTION to LLM based on Org Roam."
+  (interactive "sQuestion: ")
+  (orr--ask question))
+
+(defun org-roam-rag-ask-region (start end)
+  "Ask question to LLM based on Org Roam.
+Argument START is regions start.
+Argument END is region end."
+  (interactive "r")
+  (if (use-retion-p)
+      (orr--ask (buffer-substring start end))
+    (message "Region is not set")))
+
+(defun org-roam-rag-ask-buffer ()
+  "Ask question to LLM based on Org Roam."
+  (interactive)
+  (orr--ask (buffer-string)))
 
 (provide 'org-roam-rag)
 ;;; org-roam-rag.el ends here
