@@ -76,7 +76,7 @@ retrieved context documents will be inserted at %2$s by `format' function."
 
 
 (defcustom orr-response-buffer-name
-  "*org-roam-rag*" "Buffer name of LLM response."
+  "*Org-Roam-RAG*" "Buffer name of LLM response."
   :type '(string)
   :group 'org-roam-rag)
 
