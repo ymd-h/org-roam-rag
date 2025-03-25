@@ -12,7 +12,12 @@
         lib.mkPackage = ({ epkgs }: (epkgs.trivialBuild rec {
           pname = "org-roam-rag";
           version = "v0.0.1";
-          src = ./.;
+          src = pkgs.lib.fileset.toSource {
+            root = ./.;
+            fileset = pkgs.lib.fileset.unions [
+              ./org-roam-rag.el
+            ];
+          };
           packageRequires = with epkgs; [
             llm
             markdown-mode
