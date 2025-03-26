@@ -116,7 +116,8 @@ retrieved context documents will be inserted at %2$s by `format' function."
     (save-excursion
       (with-current-buffer buffer
         (display-buffer buffer)
-        (markdown-mode)))
+        (markdown-mode)
+		(insert "Waiting for LLM response...")))
     buffer))
 
 (defun orr--show-response-streaming (buffer response)
