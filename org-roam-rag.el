@@ -192,7 +192,7 @@ This function must be called when initialization or changing embedding model."
         (setq embeddings (cons (cons id embedding) embeddings))))
     (orr--query-db (orr--create-embedding-table-query embeddings))))
 
-(defun orr-initialize (force)
+(defun orr-initialize (&optional force)
   "Initialize Org Roam RAG.
 When FORCE is not nil or `orr-duckdb-file' doesn't exists,
 Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
