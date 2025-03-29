@@ -186,15 +186,18 @@ retrieved context documents will be inserted at %2$s by `format' function."
 
 (defun orr--node-to-string (node)
   "Convert NODE to markdown string."
-  (let* ((orig org-export-with-broken-links)
+  (let* ((broken org-export-with-broken-links)
+		 (toc org-export-with-toc)
 		 (file (org-roam-node-file node))
 		 (node-point (org-roam-node-point node))
-		 (text (org-roam-with-file file nil
-				 (setq org-export-with-broken-links t)
+		 (text (string-trim (org-roam-with-file file nil
+				 (setq org-export-with-broken-links t
+					   org-export-with-toc nil)
 				 (goto-char node-point)
 				 (unless (= 1 (point)) (org-narrow-to-subtree))
-				 (org-export-as 'md))))
-	(setq org-export-with-broken-links orig)
+				 (org-export-as 'md)))))
+	(setq org-export-with-broken-links broken
+		  org-export-with-toc toc)
 	text))
 
 (defun orr-rebuild-all-embeddings ()
