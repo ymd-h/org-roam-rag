@@ -273,8 +273,13 @@ SELECT id FROM backward;"
          (query (orr--create-retrieve-query embedding))
          (ids (orr--query-db query)))
     (mapconcat
-     (lambda (id) (orr--node-to-string (org-roam-node-from-id (nth 0 id))))
-     ids "\n\n----\n\n")))
+	 #'identity
+	 (seq-filter
+	  (lambda (text) (not (equal text "")))
+	  (mapcar
+       (lambda (id) (orr--node-to-string (org-roam-node-from-id (nth 0 id))))
+	   ids))
+	 "\n\n----\n\n")))
 
 (defun orr--ask (question)
   "Ask QUESTION to LLM."
