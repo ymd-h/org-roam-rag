@@ -75,6 +75,12 @@ retrieved context documents will be inserted at %2$s by `format' function."
   :group 'org-roam-rag)
 
 
+(defcustom orr-prompt-buffer-name
+  "*Org-Roam-RAG-Prompt*" "Buffer name of LLM prompt."
+  :type '(string)
+  :group 'org-roam-rag)
+
+
 (defcustom orr-response-buffer-name
   "*Org-Roam-RAG*" "Buffer name of LLM response."
   :type '(string)
@@ -271,6 +277,11 @@ SELECT id FROM backward;"
   "Ask QUESTION to LLM."
   (let* ((contexts (orr--retrieve question))
          (prompt (format orr-llm-user-prompt question contexts)))
+	(save-excursion
+	  (with-current-buffer
+		  (generate-new-buffer orr-prompt-buffer-name)
+		(insert prompt)
+		(markdown-mode)))
     (orr--chat-streaming prompt)))
 
 (defun orr-ask (question)
