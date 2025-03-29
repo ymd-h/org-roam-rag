@@ -100,6 +100,18 @@ retrieved context documents will be inserted at %2$s by `format' function."
   :group 'org-roam-rag)
 
 
+(defcustom orr-forward-links
+  3 "Number of forward links included in contexts."
+  :type '(integer)
+  :group 'org-roam-rag)
+
+
+(defcustom orr-backward-links
+  2 "Number of backward links included in contexts."
+  :type '(integer)
+  :group 'org-roam-rag)
+
+
 (defun orr--make-llm-prompt (prompt)
   "Make LLM prompt from PROMPT."
   (if (fboundp 'llm-make-chat-prompt)
