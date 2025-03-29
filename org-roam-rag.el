@@ -200,6 +200,24 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
 				 (y-or-n-p "DB doesn't exist.  Initialize DB? ")))
 	(orr-rebuild-all-embeddings)))
 
+(defun orr--create-update-query (id embedding)
+  "Create update query from ID and EMBEDDING."
+  (format
+   "DELETE FROM embedding WHERE id = %1$s; INSERT INTO embedding VALUES (%1$s, %2$s);"
+   id embedding))
+
+(defun orr--update-node (node)
+  "Update embedding for NODE."
+  (let* ((id (org-node-id node))
+		 (embedding (orr--embeding (orr--node-to-string node))))
+	(orr--query-db (orr--create-update-query id embedding))))
+
+(defun orr-update-node-at-point ()
+  "Update embedding for node at point."
+  (interactive)
+  (let* ((node (org-roam-node-at-point t)))
+	(when node (orr--update-node node))))
+
 (defun orr--create-retrieve-query (embedding)
   "Create retrieve query from EMBEDDING."
   (format
