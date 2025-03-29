@@ -238,10 +238,25 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
 (defun orr--create-retrieve-query (embedding)
   "Create retrieve query from EMBEDDING."
   (format
-   "WITH s AS
-(SELECT id, list_cosine_similarity(embedding, %1$s) AS similarity FROM embedding)
-SELECT '\"' || id || '\"' AS id FROM s ORDER BY similarity DESC LIMIT %2$d;"
-   embedding orr-top-contexts))
+   "INSTALL sqlite; LOAD sqlite; WITH
+s AS (SELECT '\"' || id || '\"' AS id,
+             list_cosine_similarity(embedding, %1$s) AS similarity FROM embedding),
+
+r AS (SELECT decode(source) AS source,
+             decode(dest) AS dest
+      FROM sqlite_scan('%2$s', 'links') sq WHERE decode(sq.type) = '\"id\"'),
+
+top AS (SELECT id FROM s ORDER BY similarity DESC LIMIT %3$d),
+
+forward AS (SELECT d.id AS id FROM (SELECT dest AS id FROM r WHERE EXISTS (FROM top WHERE top.id = r.source)) d LEFT JOIN s ON (d.id = s.id) ORDER BY s.similarity DESC LIMIT %4$d),
+
+backward AS (SELECT d.id AS id FROM (SELECT source AS id FROM r WHERE EXISTS (FROM top WHERE top.id = r.dest)) d LEFT JOIN s ON (d.id = s.id) ORDER BY s.similarity DESC LIMIT %5$d)
+
+SELECT id FROM top UNION
+SELECT id FROM forward UNION
+SELECT id FROM backward;"
+   embedding (file-truename org-roam-db-location)
+   orr-top-contexts orr-forward-links orr-backward-links))
 
 (defun orr--retrieve (question)
   "Retrieve contexts for QUESTION."
