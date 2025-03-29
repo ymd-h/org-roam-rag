@@ -216,7 +216,12 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
   "Update embedding for node at point."
   (interactive)
   (let* ((node (org-roam-node-at-point t)))
-	(when node (orr--update-node node))))
+	(when node
+	  (unless (org-roam-node-file node)
+		;; Ensure file
+		(setf (org-roam-node-file node)
+			  (file-truename (buffer-file-name))))
+	  (orr--update-node node))))
 
 (defun orr--create-retrieve-query (embedding)
   "Create retrieve query from EMBEDDING."
