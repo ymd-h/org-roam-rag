@@ -142,8 +142,10 @@ retrieved context documents will be inserted at %2$s by `format' function."
   "Show LLM (partial) RESPONSE at specified BUFFER."
   (save-excursion
     (with-current-buffer buffer
+	  (view-mode -1)
       (erase-buffer)
-      (insert response))))
+      (insert response)
+	  (view-mode +1))))
 
 (defun orr--chat-streaming (prompt)
   "Chat with LLM streaming using PROMPT."
@@ -289,7 +291,8 @@ SELECT id FROM backward;"
 	  (with-current-buffer
 		  (generate-new-buffer orr-prompt-buffer-name)
 		(insert prompt)
-		(markdown-mode)))
+		(markdown-mode)
+		(view-mode +1)))
     (orr--chat-streaming prompt)))
 
 (defun orr-ask (question)
