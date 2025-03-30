@@ -192,12 +192,13 @@ retrieved context documents will be inserted at %2$s by `format' function."
 		 (toc org-export-with-toc)
 		 (file (org-roam-node-file node))
 		 (node-point (org-roam-node-point node))
-		 (text (string-trim (org-roam-with-file file nil
-				 (setq org-export-with-broken-links t
-					   org-export-with-toc nil)
-				 (goto-char node-point)
-				 (unless (= 1 (point)) (org-narrow-to-subtree))
-				 (org-export-as 'md)))))
+		 (text (string-trim
+				(org-roam-with-file file nil
+				  (setq org-export-with-broken-links t
+						org-export-with-toc nil)
+				  (goto-char node-point)
+				  (unless (= 1 (point)) (org-narrow-to-subtree))
+				  (org-export-as 'md)))))
 	(setq org-export-with-broken-links broken
 		  org-export-with-toc toc)
 	text))
