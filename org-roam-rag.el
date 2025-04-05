@@ -183,10 +183,12 @@ ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
 
 (defun orr--embedding (text)
   "Create embedding vector string for TEXT."
-  (let* ((e (mapconcat
-             (lambda (d) (format "%s" d))
-             (llm-embedding orr-llm-provider text) ",")))
-    (concat "[" e "]")))
+  (if (equal text "")
+	  "null"
+	(let* ((e (mapconcat
+               (lambda (d) (format "%s" d))
+               (llm-embedding orr-llm-provider text) ",")))
+      (concat "[" e "]"))))
 
 (defun orr--embedding-async (text callback)
   "Create embedding vector string for TEXT asynchronically.
