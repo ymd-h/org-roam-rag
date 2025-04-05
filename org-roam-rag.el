@@ -158,7 +158,7 @@ ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
                      (orr--show-response-streaming buffer response))))
     (llm-chat-streaming orr-llm-provider
                         (orr--make-llm-prompt prompt)
-                        callback callback orr--error-callback)))
+                        callback callback #'orr--error-callback)))
 
 (defun orr--query-db (query)
   "Query db with QUERY."
@@ -197,7 +197,7 @@ CALLBACK is called with embedding string"
    orr-llm-provider text
    (lambda (e) (funcall callback
 						(concat "[" (mapconcat (lambda (d) (format "%s" d)) e ",") "]")))
-   orr--error-callback))
+   #'orr--error-callback))
 
 (defun orr--node-to-string (node)
   "Convert NODE to markdown string."
