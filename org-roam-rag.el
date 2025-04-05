@@ -268,6 +268,19 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
   (when (org-roam-file-p)
 	(add-hook 'after-save-hook #'orr--autosync-on-save nil t)))
 
+(defun orr--enable-autosync-mode ()
+  "Enable orr-autosync-mode."
+  (add-hook 'find-file-hook #'orr--autosync-setup)
+  (dolist (buf (org-roam-buffer-list))
+	(with-current-buffer buf (orr--autosync-setup))))
+
+(defun orr--disable-autosync-mode ()
+  "Disable orr-autosync-mode."
+  (remove-hook 'find-file-hook #'orr--autosync-on-save)
+  (dolist (buf (org-roam-buffer-list))
+	(with-current-buffer buf
+	  (remove-hook 'after-save-hook #'orr--autosync-on-save t))))
+
 ;;;###autoload
 (define-minor-mode orr-autosync-mode
   "Toggle orr-autosync mode.
@@ -276,11 +289,8 @@ orr-autosync mode is global minor mode to keep embedding databse updated."
   :global t
   :init-value nil
   (if orr-autosync-mode
-	  (add-hook 'find-file-hook #'orr--autosync-setup)
-	(remove-hook 'find-file-hook #'orr--autosync-setup)
-	(dolist (buf (org-roam-buffer-list))
-	  (with-current-buffer buf
-		(remove-hook 'after-save-hook #'orr--autosync-on-save t)))))
+	  (orr--enable-autosync-mode)
+	(orr--disable-autosync-mode)))
 
 (defun orr--create-retrieve-query (embedding)
   "Create retrieve query from EMBEDDING."
