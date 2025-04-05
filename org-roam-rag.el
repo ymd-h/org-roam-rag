@@ -127,6 +127,10 @@ retrieved context documents will be inserted at %2$s by `format' function."
      :interactions
      (list (make-llm-chat-prompt-interaction :role 'user :content prompt)))))
 
+(defun orr--error-callback (error-symbol error-message)
+  "Error callback function.
+ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
+  (error "Error %1$s: %2$2" error-symbol error-message))
 
 (defun orr--response-buffer ()
   "Create and display org-roam-rag response buffer."
@@ -151,12 +155,10 @@ retrieved context documents will be inserted at %2$s by `format' function."
   "Chat with LLM streaming using PROMPT."
   (let* ((buffer (orr--response-buffer))
          (callback (lambda (response)
-                     (orr--show-response-streaming buffer response)))
-		 (error-callback
-		  (lambda (error-symbol msg) (error "Error %1$s: %2$s" error-symbol msg))))
+                     (orr--show-response-streaming buffer response))))
     (llm-chat-streaming orr-llm-provider
                         (orr--make-llm-prompt prompt)
-                        callback callback error-callback)))
+                        callback callback orr--error-callback)))
 
 (defun orr--query-db (query)
   "Query db with QUERY."
