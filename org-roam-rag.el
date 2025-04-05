@@ -243,9 +243,9 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
 
 (defun orr--update-node (node)
   "Update embedding for NODE."
-  (let* ((id (org-node-id node))
-		 (embedding (orr--embedding (orr--node-to-string node))))
-	(orr--query-db (orr--create-update-query id embedding))))
+  (orr--embedding-async
+   (orr--node-to-string (org-node-id node))
+   (lambda (embedding) (orr--query-db (orr--create-update-query id embedding)))))
 
 (defun orr-update-node-at-point ()
   "Update embedding for node at point."
