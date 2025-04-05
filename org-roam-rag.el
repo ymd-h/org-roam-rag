@@ -270,7 +270,8 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
 
 ;;;###autoload
 (define-minor-mode orr-autosync-mode
-  "Global minor mode to keep embedding databse updated."
+  "Toggle orr-autosync mode.
+orr-autosync mode is global minor mode to keep embedding databse updated."
   :group 'org-roam-rag
   :global t
   :init-value nil
