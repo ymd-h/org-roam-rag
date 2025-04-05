@@ -192,12 +192,14 @@ ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
 
 (defun orr--embedding-async (text callback)
   "Create embedding vector string for TEXT asynchronically.
-CALLBACK is called with embedding string"
-  (llm-embedding-async
-   orr-llm-provider text
-   (lambda (e) (funcall callback
-						(concat "[" (mapconcat (lambda (d) (format "%s" d)) e ",") "]")))
-   #'orr--error-callback))
+CALLBACK is called with embedding string."
+  (if (equal text "")
+	  (funcall callback "null")
+	(llm-embedding-async
+	 orr-llm-provider text
+	 (lambda (e) (funcall callback
+						  (concat "[" (mapconcat (lambda (d) (format "%s" d)) e ",") "]")))
+	 #'orr--error-callback)))
 
 (defun orr--node-to-string (node)
   "Convert NODE to markdown string."
