@@ -247,6 +247,29 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
 			  (file-truename (buffer-file-name))))
 	  (orr--update-node node))))
 
+(defun orr--autosync-on-save ()
+  "Update embedding for all nodes in the current buffer."
+  (org-roam-db-map-nodes
+   (list #'orr-update-node-at-point)))
+
+(defun orr--autosync-setup ()
+  "Setup the autosync if it is Org-Roam file."
+  (when (org-roam-file-p)
+	(add-hook 'after-save-hook #'orr--autosync-on-save nil t)))
+
+;;;###autoload
+(define-minor-mode orr-autosync-mode
+  "Global minor mode to keep embedding databse updated."
+  :group 'org-roam-rag
+  :global t
+  :init-value nil
+  (if orr-autosync-mode
+	  (add-hook 'find-file-hook #'orr--autosync-setup)
+	(remove-hook 'find-file-hook #'orr--autosync-setup)
+	(dolist (buf (org-roam-buffer-list))
+	  (with-current-buffer buf
+		(remove-hook 'after-save-hook #'orr--autosync-on-save t)))))
+
 (defun orr--create-retrieve-query (embedding)
   "Create retrieve query from EMBEDDING."
   (format
