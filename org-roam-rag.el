@@ -214,6 +214,7 @@ CALLBACK is called with embedding string"
 		  org-export-with-toc toc)
 	text))
 
+;;;###autoload
 (defun orr-rebuild-all-embeddings ()
   "Rebuild all embeddings in Org Roam RAG database.
 This function must be called when initialization or changing embedding model."
@@ -247,6 +248,7 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
    (orr--node-to-string (org-node-id node))
    (lambda (embedding) (orr--query-db (orr--create-update-query id embedding)))))
 
+;;;###autoload
 (defun orr-update-node-at-point ()
   "Update embedding for node at point."
   (interactive)
@@ -341,11 +343,13 @@ SELECT id FROM backward;"
 		(view-mode +1)))
     (orr--chat-streaming prompt)))
 
+;;;###autoload
 (defun orr-ask (question)
   "Ask QUESTION to LLM based on Org Roam."
   (interactive "sQuestion: ")
   (orr--ask question))
 
+;;;###autoload
 (defun orr-ask-region (start end)
   "Ask question to LLM based on Org Roam.
 Argument START is regions start.
@@ -355,6 +359,7 @@ Argument END is region end."
       (orr--ask (buffer-substring start end))
     (message "Region is not set")))
 
+;;;###autoload
 (defun orr-ask-buffer ()
   "Ask question to LLM based on Org Roam."
   (interactive)
