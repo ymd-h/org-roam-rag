@@ -102,19 +102,19 @@ retrieved context documents will be inserted at %2$s by `format' function."
 
 (defcustom orr-top-contexts
   5 "Number of top contexts for retrieval."
-  :type '(integer)
+  :type '(natnum)
   :group 'org-roam-rag)
 
 
 (defcustom orr-forward-links
   3 "Number of forward links included in contexts."
-  :type '(integer)
+  :type '(natnum)
   :group 'org-roam-rag)
 
 
 (defcustom orr-backward-links
   2 "Number of backward links included in contexts."
-  :type '(integer)
+  :type '(natnum)
   :group 'org-roam-rag)
 
 
