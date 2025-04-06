@@ -345,13 +345,10 @@ SELECT id FROM backward;"
   (let* ((contexts (orr--retrieve question))
          (prompt (format orr-llm-user-prompt question contexts)))
 	(when orr-show-prompt
-	  (let* ((buffer (generate-new-buffer orr-prompt-buffer-name)))
-		(save-excursion
-		  (with-current-buffer buffer
-			(insert prompt)
-			(markdown-mode)
-			(view-mode +1)
-			(display-buffer buffer)))))
+	  (pop-to-buffer (generate-new-buffer orr-prompt-buffer-name))
+	  (markdown-mode)
+	  (insert prompt)
+	  (view-mode +1))
     (orr--chat-streaming prompt)))
 
 ;;;###autoload
