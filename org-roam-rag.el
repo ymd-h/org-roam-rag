@@ -5,7 +5,7 @@
 ;; Author: Hiroyuki Yamada
 ;; Created: 2025-03-20
 ;; Package-Version: 1.0.0
-;; Package-Requires: (llm markdown-mode org-roam)
+;; Package-Requires: (llm markdown-mode org-roam ox-gfm)
 
 
 ;; This file is not part of GNU Emacs.
@@ -35,7 +35,7 @@
 (require 'llm)
 (require 'markdown-mode)
 (require 'org-roam)
-(require 'ox-md)
+(require 'ox-gfm)
 
 
 (defgroup org-roam-rag nil
@@ -213,7 +213,7 @@ CALLBACK is called with embedding string."
 						org-export-with-toc nil)
 				  (goto-char node-point)
 				  (unless (= 1 (point)) (org-narrow-to-subtree))
-				  (org-export-as 'md)))))
+				  (org-export-as 'gfm)))))
 	(setq org-export-with-broken-links broken
 		  org-export-with-toc toc)
 	text))
