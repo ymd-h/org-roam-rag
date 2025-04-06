@@ -143,27 +143,22 @@ ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
     (save-excursion
       (with-current-buffer buffer
         (display-buffer buffer)
-        (markdown-mode)
+        (gfm-mode)
 		(insert "Waiting for LLM response...")))
     buffer))
-
-(defun orr--show-response-streaming (buffer response)
-  "Show LLM (partial) RESPONSE at specified BUFFER."
-  (save-excursion
-    (with-current-buffer buffer
-	  (view-mode -1)
-      (erase-buffer)
-      (insert response)
-	  (view-mode +1))))
 
 (defun orr--chat-streaming (prompt)
   "Chat with LLM streaming using PROMPT."
   (let* ((buffer (orr--response-buffer))
-         (callback (lambda (response)
-                     (orr--show-response-streaming buffer response))))
+         (callback (lambda (response) (with-current-buffer buffer
+										(erase-buffer) (insert response))))
+		 (finalize (lambda (response) (with-current-buffer buffer
+										(erase-buffer) (insert response)
+										(gfm-view-mode)))))
     (llm-chat-streaming orr-llm-provider
                         (orr--make-llm-prompt prompt)
-                        callback callback #'orr--error-callback)))
+                        callback finalize
+						#'orr--error-callback)))
 
 (defun orr--query-db (query)
   "Query db with QUERY."
@@ -346,9 +341,8 @@ SELECT id FROM backward;"
          (prompt (format orr-llm-user-prompt question contexts)))
 	(when orr-show-prompt
 	  (pop-to-buffer (generate-new-buffer orr-prompt-buffer-name))
-	  (markdown-mode)
 	  (insert prompt)
-	  (view-mode +1))
+	  (gfm-view-mode))
     (orr--chat-streaming prompt)))
 
 ;;;###autoload
