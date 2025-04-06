@@ -275,13 +275,13 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
 	(add-hook 'after-save-hook #'orr--autosync-on-save nil t)))
 
 (defun orr--enable-autosync-mode ()
-  "Enable orr-autosync-mode."
+  "Enable `orr-autosync-mode'."
   (add-hook 'find-file-hook #'orr--autosync-setup)
   (dolist (buf (org-roam-buffer-list))
 	(with-current-buffer buf (orr--autosync-setup))))
 
 (defun orr--disable-autosync-mode ()
-  "Disable orr-autosync-mode."
+  "Disable `orr-autosync-mode'."
   (remove-hook 'find-file-hook #'orr--autosync-on-save)
   (dolist (buf (org-roam-buffer-list))
 	(with-current-buffer buf
