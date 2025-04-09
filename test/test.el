@@ -14,7 +14,8 @@
   (setq orr-llm-provider
 		(make-llm-ollama
 		 :chat-model "gemma3:4b"
-		 :embedding-model "nomic-embed-text"))
+		 :embedding-model "nomic-embed-text")
+		orr-debug nil)
   (orr-initialize)
   (orr-autosync-mode +1))
 
