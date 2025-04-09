@@ -122,6 +122,10 @@ If non-nil, show prompt."
   :type '(natnum)
   :group 'org-roam-rag)
 
+(defcustom orr-debug
+  nil "Debug flag."
+  :type '(boolean)
+  :group 'org-roam-rag)
 
 (defun orr--make-llm-prompt (prompt)
   "Make LLM prompt from PROMPT."
@@ -162,6 +166,7 @@ ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
 
 (defun orr--query-db (query)
   "Query db with QUERY."
+  (when orr-debug (message "%s" query))
   (let* ((q (if (length< query 100)
 				(cons "-s" query)
 			  (cons "-f" (make-temp-file "orr-query-" nil ".sql"
@@ -169,6 +174,7 @@ ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
 		 (out (process-lines orr-duckdb-executable
 							 "-noheader" "-column" (car q) (cdr q)
 							 orr-duckdb-file)))
+	(when orr-debug (message "%s" out))
 	(mapcar (lambda (line) (read (concat "(" line ")")))
 			(seq-filter (lambda (line) (not (equal line ""))) out))))
 
