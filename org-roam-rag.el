@@ -249,7 +249,7 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
 (defun orr--create-update-query (id embedding)
   "Create update query from ID and EMBEDDING."
   (format
-   "DELETE FROM embedding WHERE id = %1$s; INSERT INTO embedding VALUES (%1$s, %2$s);"
+   "DELETE FROM embedding WHERE id = '%1$s'; INSERT INTO embedding VALUES ('%1$s', %2$s);"
    id embedding))
 
 (defun orr--update-node (node)
