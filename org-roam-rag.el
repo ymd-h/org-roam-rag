@@ -254,6 +254,8 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
 
 (defun orr--update-node (node)
   "Update embedding for NODE."
+  (when orr-debug
+	(message "Update: %s" (org-roam-node-title node)))
   (orr--embedding-async
    (orr--node-to-string node)
    (lambda (embedding) (orr--query-db (orr--create-update-query
