@@ -122,6 +122,11 @@ If non-nil, show prompt."
   :type '(natnum)
   :group 'org-roam-rag)
 
+(defcustom orr-batch-size
+  32 "Batch size of creating  embedding."
+  :type '(natnum)
+  :group org-roam-rag)
+
 (defcustom orr-debug
   nil "Debug flag."
   :type '(boolean)
