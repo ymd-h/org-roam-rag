@@ -275,8 +275,12 @@ Initialize (or rebuild) database by calling `orr-rebuild-all-embeddings'."
 
 (defun orr--autosync-on-save ()
   "Update embedding for all nodes in the current buffer."
-  (org-roam-db-map-nodes
-   (list #'orr-update-node-at-point)))
+  (save-excursion
+	(goto-char (point-min))
+	(when (org-roam-db-node-p)
+	  (orr-update-node-at-point))
+	(org-roam-db-map-nodes
+	 (list #'orr-update-node-at-point))))
 
 (defun orr--autosync-setup ()
   "Setup the autosync if it is Org-Roam file."
