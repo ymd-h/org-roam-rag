@@ -243,18 +243,37 @@ CALLBACK is called with embedding strings."
 		  org-export-with-toc toc)
 	text))
 
+(defun orr--update-embeddings (nodes embeddings n)
+  "Update embeddings.
+Until NODES-BATCHES become nil,
+take the first batch of nodes and append embeding to EMBEDDINGS,
+then call recursively."
+  (message "Building embeddings... %d / %d" (length embedding) n)
+  (if node-batches
+	  ;; step
+	  (orr--embedding-batch-async
+	   (mapcar #'orr-node-to-string (car node-batches))
+	   (lambda (embedding)
+		 (orr--update-embeddings
+		  (cdr node-batches)
+		  (append
+		   (seq-mapn
+			(lambda (node emb) (cons (org-roam-node-id node) emb))
+			(car node-batches) embedding)
+		   embeddings)
+		  n)))
+	;; last
+	(orr--query-db (orr--create-embedding-table-query embeddings))))
+
 ;;;###autoload
 (defun orr-rebuild-all-embeddings ()
   "Rebuild all embeddings in Org Roam RAG database.
 This function must be called when initialization or changing embedding model."
   (interactive)
   (let* ((nodes (org-roam-node-list))
-         (embeddings nil))
-    (dolist-with-progress-reporter (node nodes) "Rebuild embeddings... "
-      (let* ((id (org-roam-node-id node))
-             (embedding (orr--embedding (orr--node-to-string node))))
-        (setq embeddings (cons (cons id embedding) embeddings))))
-    (orr--query-db (orr--create-embedding-table-query embeddings))))
+		 (n (length nodes))
+		 (node-batches (seq-split nodes orr-batch-size)))
+	(orr--update-embeddings node-batches nil n)))
 
 (defun orr-initialize (&optional force)
   "Initialize Org Roam RAG.
