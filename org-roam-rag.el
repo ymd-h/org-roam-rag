@@ -125,7 +125,7 @@ If non-nil, show prompt."
 (defcustom orr-batch-size
   32 "Batch size of creating  embedding."
   :type '(natnum)
-  :group org-roam-rag)
+  :group 'org-roam-rag)
 
 (defcustom orr-debug
   nil "Debug flag."
@@ -216,7 +216,7 @@ CALLBACK is called with embedding string."
 (defun orr--embedding-batch-async (texts callback)
   "Create batch of embedding vector strings for TEXTS asynchronically.
 CALLBACK is called with embedding strings."
-  (llm-batch-embedding-async
+  (llm-batch-embeddings-async
    orr-llm-provider texts
    (lambda (embeddings)
 	 (funcall
@@ -243,16 +243,16 @@ CALLBACK is called with embedding strings."
 		  org-export-with-toc toc)
 	text))
 
-(defun orr--update-embeddings (nodes embeddings n)
+(defun orr--update-embeddings (node-batches embeddings n)
   "Update embeddings.
 Until NODES-BATCHES become nil,
 take the first batch of nodes and append embeding to EMBEDDINGS,
 then call recursively."
-  (message "Building embeddings... %d / %d" (length embedding) n)
+  (message "Building embeddings... %d / %d" (length embeddings) n)
   (if node-batches
 	  ;; step
 	  (orr--embedding-batch-async
-	   (mapcar #'orr-node-to-string (car node-batches))
+	   (vconcat (mapcar #'orr--node-to-string (car node-batches)))
 	   (lambda (embedding)
 		 (orr--update-embeddings
 		  (cdr node-batches)
