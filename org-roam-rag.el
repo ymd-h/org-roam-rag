@@ -192,14 +192,16 @@ ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
 (SELECT unnest(['%1$s']) AS \"id\", unnest([%2$s]) AS \"embedding\");"
      id-col embedding-col)))
 
+(defun orr--format-embedding (embedding)
+  "Format EMBEDDING."
+  (concat "[" (mapconcat (lambda (e) (format "%s" e)) embedding ",") "]"))
+
 (defun orr--embedding (text)
   "Create embedding vector string for TEXT."
   (if (equal text "")
 	  "null"
-	(let* ((e (mapconcat
-               (lambda (d) (format "%s" d))
-               (llm-embedding orr-llm-provider text) ",")))
-      (concat "[" e "]"))))
+	(let* ((embedding (llm-embedding orr-llm-provider text)))
+	  (orr--format-embedding embedding))))
 
 (defun orr--embedding-async (text callback)
   "Create embedding vector string for TEXT asynchronically.
@@ -208,9 +210,21 @@ CALLBACK is called with embedding string."
 	  (funcall callback "null")
 	(llm-embedding-async
 	 orr-llm-provider text
-	 (lambda (e) (funcall callback
-						  (concat "[" (mapconcat (lambda (d) (format "%s" d)) e ",") "]")))
+	 (lambda (e) (funcall callback (orr--format-embedding e)))
 	 #'orr--error-callback)))
+
+(defun orr--embedding-batch-async (texts callback)
+  "Create batch of embedding vector strings for TEXTS asynchronically.
+CALLBACK is called with embedding strings."
+  (llm-batch-embedding-async
+   orr-llm-provider texts
+   (lambda (embeddings)
+	 (funcall
+	  callback
+	  (seq-mapn
+	   (lambda (text e) (if (equal text "") "null" (orr--format-embedding e)))
+	   texts embeddings)))
+   #'orr--error-callback))
 
 (defun orr--node-to-string (node)
   "Convert NODE to markdown string."
