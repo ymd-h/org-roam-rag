@@ -132,6 +132,12 @@ If non-nil, show prompt."
   :type '(boolean)
   :group 'org-roam-rag)
 
+(defun orr--debug (value)
+  "Show debug message for VALUE."
+  (when orr-debug
+	(message "%s" value))
+  value)
+
 (defun orr--make-llm-prompt (prompt)
   "Make LLM prompt from PROMPT."
   (if (fboundp 'llm-make-chat-prompt)
@@ -171,7 +177,7 @@ ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
 
 (defun orr--query-db (query)
   "Query db with QUERY."
-  (when orr-debug (message "%s" query))
+  (orr--debug query)
   (let* ((q (if (length< query 100)
 				(cons "-s" query)
 			  (cons "-f" (make-temp-file "orr-query-" nil ".sql"
@@ -179,9 +185,8 @@ ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
 		 (out (process-lines orr-duckdb-executable
 							 "-noheader" "-column" (car q) (cdr q)
 							 orr-duckdb-file)))
-	(when orr-debug (message "%s" out))
 	(mapcar (lambda (line) (read (concat "(" line ")")))
-			(seq-filter (lambda (line) (not (equal line ""))) out))))
+			(seq-filter (lambda (line) (not (equal line ""))) (orr--debug out)))))
 
 (defun orr--create-embedding-table-query (embeddings)
   "Construct query from EMBEDDINGS."
