@@ -256,17 +256,18 @@ then call recursively."
   (message "Building embeddings... %d / %d" (length embeddings) n)
   (if node-batches
 	  ;; step
-	  (orr--embedding-batch-async
-	   (vconcat (mapcar #'orr--node-to-string (car node-batches)))
-	   (lambda (embedding)
-		 (orr--update-embeddings
-		  (cdr node-batches)
-		  (append
-		   (seq-mapn
-			(lambda (node emb) (cons (org-roam-node-id node) emb))
-			(car node-batches) embedding)
-		   embeddings)
-		  n)))
+	  (let* ((node-batch (car node-batches)))
+		(orr--embedding-batch-async
+		 (vconcat (mapcar #'orr--node-to-string node-batch))
+		 (lambda (embedding-batch)
+		   (orr--update-embeddings
+			(cdr node-batches)
+			(append
+			 (seq-mapn
+			  (lambda (node embbedding) (cons (org-roam-node-id node) embbedding))
+			  node-batch embedding-batch)
+			 embeddings)
+			n))))
 	;; last
 	(orr--query-db (orr--create-embedding-table-query embeddings))))
 
