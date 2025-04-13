@@ -235,17 +235,20 @@ CALLBACK is called with embedding strings."
   "Convert NODE to markdown string."
   (let* ((broken org-export-with-broken-links)
 		 (toc org-export-with-toc)
+		 (title org-export-with-title)
 		 (file (org-roam-node-file node))
 		 (node-point (org-roam-node-point node))
 		 (text (string-trim
 				(org-roam-with-file file nil
 				  (setq org-export-with-broken-links t
-						org-export-with-toc nil)
+						org-export-with-toc nil
+						org-export-with-title t)
 				  (goto-char node-point)
 				  (unless (= 1 (point)) (org-narrow-to-subtree))
 				  (org-export-as 'gfm)))))
 	(setq org-export-with-broken-links broken
-		  org-export-with-toc toc)
+		  org-export-with-toc toc
+		  org-export-with-title title)
 	text))
 
 (defun orr--update-embeddings (node-batches embeddings n)
