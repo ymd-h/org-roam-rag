@@ -285,7 +285,8 @@ then call recursively."
 	;; last
 	(advice-remove 'llm-provider-embedding-extract-result
 				   #'orr--advice-llm-provider-embedding-extract-result)
-	(orr--query-db (orr--create-embedding-table-query embeddings))))
+	(orr--query-db (orr--create-embedding-table-query embeddings))
+	(message "Finish building embeddings of %d nodes." n)))
 
 ;;;###autoload
 (defun orr-rebuild-all-embeddings ()
