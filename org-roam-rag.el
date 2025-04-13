@@ -58,6 +58,8 @@ You must answer their questions based on these context documents."
 
 (defcustom orr-llm-user-prompt
   "Please answer user question based on context documents.
+Context documents might include unrelated documents,
+so that you must choose related documents to answer user question.
 
 User Question
 -------------
@@ -66,6 +68,10 @@ User Question
 Context Documents
 -----------------
 %2$s
+
+User Question (Again)
+---------------------
+%1$s
 "
   "Prompt Template for RAG.
 
