@@ -251,6 +251,17 @@ CALLBACK is called with embedding strings."
 		  org-export-with-title title)
 	text))
 
+(defun orr--advice-llm-provider-embedding-extract-result (f provider response)
+  "Advice function for `llm-provider-embedding-extract-result'.
+
+`llm-batch-embeddings-async' mistakenly calls `llm-provider-embedding-extract-result'
+instead of `llm-provider-batch-embeddings-extract-result'.
+
+This advide checks response size, and if it has multiple embeddings"
+  (if (length> response 1)
+	  (llm-provider-batch-embeddings-extract-result provider response)
+	(funcall f provider response)))
+
 (defun orr--update-embeddings (node-batches embeddings n)
   "Update embeddings.
 Until NODES-BATCHES become nil,
@@ -272,6 +283,8 @@ then call recursively."
 			 embeddings)
 			n))))
 	;; last
+	(advice-remove 'llm-provider-embedding-extract-result
+				   #'orr--advice-llm-provider-embedding-extract-result)
 	(orr--query-db (orr--create-embedding-table-query embeddings))))
 
 ;;;###autoload
@@ -282,6 +295,8 @@ This function must be called when initialization or changing embedding model."
   (let* ((nodes (org-roam-node-list))
 		 (n (length nodes))
 		 (node-batches (seq-split nodes orr-batch-size)))
+	(advice-add 'llm-provider-embedding-extract-result
+				:around #'orr--advice-llm-provider-embedding-extract-result)
 	(orr--update-embeddings node-batches nil n)))
 
 (defun orr-initialize (&optional force)
