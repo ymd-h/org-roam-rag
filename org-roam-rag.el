@@ -242,20 +242,23 @@ CALLBACK is called with embedding strings."
   (let* ((broken org-export-with-broken-links)
 		 (toc org-export-with-toc)
 		 (title org-export-with-title)
+		 (level org-md-toplevel-hlevel)
 		 (file (org-roam-node-file node))
 		 (node-point (org-roam-node-point node))
 		 (text (string-trim
 				(org-roam-with-file file nil
 				  (setq org-export-with-broken-links t
 						org-export-with-toc nil
-						org-export-with-title t)
+						org-export-with-title t
+						org-md-toplevel-hlevel 2)
 				  (goto-char node-point)
 				  (unless (= 1 (point)) (org-narrow-to-subtree))
 				  (org-export-as 'gfm)))))
 	(setq org-export-with-broken-links broken
 		  org-export-with-toc toc
-		  org-export-with-title title)
-	text))
+		  org-export-with-title title
+		  org-md-toplevel-hlevel level)
+	(concat "# " (org-roam-node-title node) "\n" text)))
 
 (defun orr--advice-llm-provider-embedding-extract-result (f provider response)
   "Advice function for `llm-provider-embedding-extract-result'.
