@@ -263,19 +263,27 @@ CALLBACK is called with embedding strings."
 (defun orr--advice-llm-provider-embedding-extract-result (f provider response)
   "Advice function for `llm-provider-embedding-extract-result'.
 
-`llm-batch-embeddings-async' mistakenly calls `llm-provider-embedding-extract-result'
-instead of `llm-provider-batch-embeddings-extract-result'.
+`llm-batch-embeddings-async' mistakenly calls
+`llm-provider-embedding-extract-result' instead of
+`llm-provider-batch-embeddings-extract-result'.
 
-This advide checks response size, and if it has multiple embeddings"
+This advide checks response size, and if it has multiple embeddings.
+
+F is a `llm-provider-embedding-extract-result' to be patched.
+PROVIDER and RESPONSE are aguments of F.
+
+See https://github.com/ahyatt/llm/issues/184"
   (if (length> response 1)
 	  (llm-provider-batch-embeddings-extract-result provider response)
 	(funcall f provider response)))
 
 (defun orr--update-embeddings (node-batches embeddings n)
   "Update embeddings.
-Until NODES-BATCHES become nil,
+Until NODE-BATCHES become nil,
 take the first batch of nodes and append embeding to EMBEDDINGS,
-then call recursively."
+then call recursively.
+
+N is a total nodes size for message."
   (message "Building embeddings... %d / %d" (length embeddings) n)
   (if node-batches
 	  ;; step
