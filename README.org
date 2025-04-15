@@ -1,0 +1,190 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+options: inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+title: Org-Roam-RAG (ORR)
+#+date: <2025-03-20 Thu>
+#+language: en
+#+creator: Emacs 29.1 (Org mode 9.7.21)
+#+cite_export:
+
+
+* Overview
+Ask question based on [[https://www.orgroam.com/][Org-Roam]] documents.
+
+#+begin_quote
+[!WARNING]
+
+This package status is PoC, and under development.
+#+end_quote
+
+This package provides Retrieval Augmented Generation (RAG)
+by using Large Language Model (LLM) and [[https://duckdb.org/][DuckDB]].
+
+All the Org-Roam nodes are embedded into vectors
+by an embedding model then stored at a DuckDB database.
+
+User question is embedded and query "similar" documents from the database.
+Additionally we add forward and backward linked documents to the context.
+
+Finally LLM answers your question based on these context.
+
+We assume Org-Roam documents obeys Zettelkasten style,
+so that Org-Roam nodes are small, self-contained, and linked documents.
+
+
+* Prerequisite
+- [[https://www.orgroam.com/][Org-Roam]]
+- [[https://duckdb.org/][DuckDB]]
+
+
+* Setup
+
+The following code is an example setup using
+[[https://ollama.com/library/gemma3][Gemma 3 4B]] and [[https://ollama.com/library/nomic-embed-text][nomic-embed-text]] through [[https://ollama.com/][Ollama]].
+
+
+#+begin_src elisp
+(use-package org-roam-rag
+  :vc (:url "https://github.com/ymd-h/org-roam-rag" :rev :newest)
+  :config
+  (setq orr-llm-provider
+        (make-llm-ollama :chat-model "gemma3:4b"
+                         :embedding-model "nomic-embed-text"))
+  (orr-initialize)
+  (orr-autosync-mode +1))
+#+end_src
+
+
+~orr-llm-provider~ is a LLM provider for [[https://github.com/ahyatt/llm][ahyatt/llm]] package.
+Please see the repository for other LLM models' setup.
+
+~orr-initialize~ will check existence of database for pre-calculated embeddings
+and ask you to build embeddings if it isn't existed.
+
+~orr-autosync-mode~ is a global minor mode to keep embedding database updated.
+
+* Usage
+
+** Ask question
+
+*** ~M-x orr-ask~
+Ask question from minibuffer.
+
+
+*** ~M-x orr-ask-region~
+Ask question written in the region.
+
+
+*** ~M-x orr-ask-buffer~
+Ask question written in the buffer.
+
+
+
+*** ~M-x orr-rebuild-all-embeddings~
+Rebuild all embeddings in database.
+This is necessary when you change embedding model.
+
+** Rebuild embeddings
+
+*** ~M-x orr-rebuild-all-embeddings~
+Rebuild embeddings for the all Org-Roam nodes.
+
+This function must be called, when you change embedding model.
+
+
+*** ~M-x orr-update-node-at-point~
+Rebuild embedding for the node at current point.
+
+
+** Customization
+
+*** ~orr-llm-provider~
+LLM provider for Org-Roam-RAG.
+This is a required configuration.
+
+
+*** ~orr-llm-system-prompt~
+System prompt for LLM.
+
+*** ~orr-llm-user-prompt~
+User prompt template for LLM.
+User question is inserted at ~%1$s~,
+and context documents is inserted at ~%2$s~.
+
+
+*** ~orr-show-prompt~
+If non-~nil~, show prompt buffer.
+Default is ~t~.
+
+*** ~orr-prompt-buffer-name~
+Buffer name of LLM prompt.
+Default is ~*Org-Roam-RAG-Prompt*~
+
+
+*** ~orr-response-buffer-name~
+Buffer name of LLM response.
+Default is ~*Org-Roam-RAG*~
+
+*** ~orr-duckdb-file~
+Path to embedding database file.
+Default is ~(locate-user-emacs-file "org-roam-rag.duckdb")~
+
+*** ~orr-duckdb-executable~
+DuckDB executable.
+Default is ~duckdb~
+
+*** ~orr-top-contexts~
+Number of top documents for retrieval.
+Default is ~5~.
+
+*** ~orr-forward-links~
+Number of forward links included in context.
+Default is ~3~.
+
+*** ~orr-backward-links~
+Number of backward links included in context.
+Default is ~2~.
+
+*** ~orr-batch-size~
+Batch size for ~orr-rebuild-all-embeddings~
+
+
+*** ~orr-debug~
+If non-~nil~, show debug message.
+Default is ~nil~.
+
+
+* Limitation
+
+** simple RAG
+We simply query similar documents,
+and add some forward and backward links.
+
+We don't utilize any sophisticated methods,
+like query rewrite, verification of context,
+or re-ranking context.
+
+
+** metadata / property
+We don't use metadata / property of Org-Roam nodes.
+
+
+** context window size
+We don't split a document into chunk,
+so that embedding model must have context window large enough.
+
+
+** multi-hop links
+We only utilize directly linked nodes.
+
+
+** error handling for DuckDB
+We call DuckDB as subprocess, since we cannot find good integration,
+and error handling is not implemented well.
+
+You might encounter strange error,
+and it can be DuckDB query syntax error,
+or its result might be wrong format etc.
+
+These problems can be debugged with ~(setq orr-debug t)~,
+however, it is also troublesome.
