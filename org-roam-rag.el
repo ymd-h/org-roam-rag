@@ -277,45 +277,62 @@ See https://github.com/ahyatt/llm/issues/184"
 	  (llm-provider-batch-embeddings-extract-result provider response)
 	(funcall f provider response)))
 
-(defun orr--update-embeddings (node-batches embeddings n)
-  "Update embeddings.
-Until NODE-BATCHES become nil,
-take the first batch of nodes and append embeding to EMBEDDINGS,
-then call recursively.
-
-N is a total nodes size for message."
-  (message "Building embeddings... %d / %d" (length embeddings) n)
-  (if node-batches
-	  ;; step
-	  (let* ((node-batch (car node-batches)))
-		(orr--embedding-batch-async
-		 (vconcat (mapcar #'orr--node-to-string node-batch))
-		 (lambda (embedding-batch)
-		   (orr--update-embeddings
-			(cdr node-batches)
-			(append
-			 (seq-mapn
-			  (lambda (node embbedding) (cons (org-roam-node-id node) embbedding))
-			  node-batch embedding-batch)
-			 embeddings)
-			n))))
-	;; last
-	(advice-remove 'llm-provider-embedding-extract-result
-				   #'orr--advice-llm-provider-embedding-extract-result)
-	(orr--query-db (orr--create-embedding-table-query embeddings))
-	(message "Finish building embeddings of %d nodes." n)))
 
 ;;;###autoload
-(defun orr-rebuild-all-embeddings ()
+(defun orr-rebuild-all-embeddings (&optional inhibit-batch)
   "Rebuild all embeddings in Org Roam RAG database.
-This function must be called when initialization or changing embedding model."
-  (interactive)
-  (let* ((nodes (org-roam-node-list))
-		 (n (length nodes))
-		 (node-batches (seq-split nodes orr-batch-size)))
-	(advice-add 'llm-provider-embedding-extract-result
-				:around #'orr--advice-llm-provider-embedding-extract-result)
-	(orr--update-embeddings node-batches nil n)))
+This function must be called when initialization or changing embedding model.
+
+If INHIBIT-BATCH is not passed or nil, and `orr-llm-provider' supports
+`embeddings-batch' capability, a batch of Org-Roam nodes are embedded
+within a single LLM call."
+  (interactive "P")
+  (let* ((node-list (org-roam-node-list))
+		 (n (length node-list))
+		 (routine
+		  (if (or inhibit-batch
+				  (not (memq 'embeddings-batch (llm-capabilities orr-llm-provider))))
+			  ;; w/o batch
+			  (list
+			   'nodes node-list
+			   'init #'ignore
+			   'node-to-string #'orr--node-to-string
+			   'embedding #'orr--embedding-async
+			   'merge (lambda (node embedding embeddings)
+						(cons (cons (org-roam-node-id node) embedding) embeddings))
+			   'cleanup #'ignore)
+			;; w/ batch
+			(list
+			 'nodes (seq-split node-list orr-batch-size)
+			 'init (lambda ()
+					 (advice-add
+					  'llm-provider-embedding-extract-result
+					  :around #'orr--advice-llm-provider-embedding-extract-result))
+			 'node-to-string (lambda (nodes) (vconcat (mapcar #'orr--node-to-string nodes)))
+			 'embedding #'orr--embedding-batch-async
+			 'merge (lambda (node-batch embedding-batch embeddings)
+					  (append
+					   (seq-mapn
+						(lambda (node embedding) (cons (org-roam-node-id node) embedding))
+						node-batch embedding-batch)
+					   embeddings))
+			 'cleanup (lambda ()
+						(advice-remove
+						 'llm-provider-embedding-extract-result
+						 #'orr--advice-llm-provider-embedding-extract-result))))))
+	(funcall (plist-get routine 'init))
+	(named-let inner ((nodes (plist-get routine 'nodes))
+					  (embeddings nil))
+	  (message "Building embeddings... %d / %d" (length embeddings) n)
+	  (if-let* ((node (and nodes (pop nodes))))
+		  (funcall
+		   (plist-get routine 'embedding)
+		   (funcall (plist-get routine 'node-to-string) node)
+		   (lambda (embedding)
+			 (inner nodes (funcall (plist-get routine 'merge) node embedding embeddings))))
+		(funcall (plist-get routine 'cleanup))
+		(orr--query-db (orr--create-embedding-table-query embeddings))
+		(message "Finish building embeddings of %d nodes" (length embeddings))))))
 
 (defun orr-initialize (&optional force)
   "Initialize Org Roam RAG.
