@@ -273,9 +273,8 @@ F is a `llm-provider-embedding-extract-result' to be patched.
 PROVIDER and RESPONSE are aguments of F.
 
 See https://github.com/ahyatt/llm/issues/184"
-  (if (length> response 1)
-	  (llm-provider-batch-embeddings-extract-result provider response)
-	(funcall f provider response)))
+  (let* ((results (llm-provider-batch-embeddings-extract-result provider response)))
+	(if (length> results 1) results (nth 0 results))))
 
 
 ;;;###autoload
