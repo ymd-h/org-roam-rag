@@ -284,7 +284,9 @@ This function must be called when initialization or changing embedding model.
 
 If INHIBIT-BATCH is not passed or nil, and `orr-llm-provider' supports
 `embeddings-batch' capability, a batch of Org-Roam nodes are embedded
-within a single LLM call."
+within a single LLM call.
+
+For interactive call, batch mode can be inhibited with `\\[universal-argument]'."
   (interactive "P")
   (let* ((node-list (org-roam-node-list))
 		 (n (length node-list))
