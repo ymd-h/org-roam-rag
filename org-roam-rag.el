@@ -469,7 +469,7 @@ SELECT id FROM backward;"
 Argument START is regions start.
 Argument END is region end."
   (interactive "r")
-  (if (use-retion-p)
+  (if (use-region-p)
       (orr--ask (buffer-substring start end))
     (message "Region is not set")))
 
