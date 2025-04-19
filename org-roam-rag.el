@@ -318,7 +318,8 @@ within a single LLM call."
 			 'cleanup (lambda ()
 						(advice-remove
 						 'llm-provider-embedding-extract-result
-						 #'orr--advice-llm-provider-embedding-extract-result))))))
+						 #'orr--advice-llm-provider-embedding-extract-result)))))
+		 (before (current-time)))
 	(funcall (plist-get routine 'init))
 	(named-let inner ((nodes (plist-get routine 'nodes))
 					  (embeddings nil))
@@ -331,7 +332,9 @@ within a single LLM call."
 			 (inner nodes (funcall (plist-get routine 'merge) node embedding embeddings))))
 		(funcall (plist-get routine 'cleanup))
 		(orr--query-db (orr--create-embedding-table-query embeddings))
-		(message "Finish building embeddings of %d nodes" (length embeddings))))))
+		(message "Finish building embeddings of %d nodes. (%s seconds)"
+				 (length embeddings)
+				 (time-to-seconds (time-subtract (current-time) before)))))))
 
 (defun orr-initialize (&optional force)
   "Initialize Org Roam RAG.
