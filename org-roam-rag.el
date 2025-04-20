@@ -133,6 +133,11 @@ If non-nil, show prompt."
   :type '(natnum)
   :group 'org-roam-rag)
 
+(defcustom orr-after-rebuild-all-embeddings-hook
+  nil "Normal hook run after `orr-rebuild-all-embeddings'."
+  :type 'hook
+  :group 'org-roam-rag)
+
 (defcustom orr-debug
   nil "Debug flag."
   :type '(boolean)
@@ -336,7 +341,8 @@ For interactive call, batch mode can be inhibited with `\\[universal-argument]'.
 		(orr--query-db (orr--create-embedding-table-query embeddings))
 		(message "Finish building embeddings of %d nodes. (%s seconds)"
 				 (length embeddings)
-				 (time-to-seconds (time-subtract (current-time) before)))))))
+				 (time-to-seconds (time-subtract (current-time) before)))
+		(run-hooks 'orr-after-rebuild-all-embeddings-hook)))))
 
 (defun orr-initialize (&optional force)
   "Initialize Org Roam RAG.
