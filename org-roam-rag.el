@@ -161,7 +161,7 @@ If non-nil, show prompt."
 (defun orr--error-callback (error-symbol error-message)
   "Error callback function.
 ERROR-SYMBOL and ERROR-MESSAGE will be passed to `error'."
-  (error "Error %1$s: %2$2" error-symbol error-message))
+  (error "Error %1$s: %2$s" error-symbol error-message))
 
 (defun orr--response-buffer ()
   "Create and display org-roam-rag response buffer."
