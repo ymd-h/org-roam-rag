@@ -482,10 +482,20 @@ Argument END is region end."
     (message "Region is not set")))
 
 ;;;###autoload
-(defun orr-ask-buffer ()
-  "Ask question to LLM based on Org Roam."
-  (interactive)
-  (orr--ask (buffer-string)))
+(defun orr-ask-buffer (&optional other)
+  "Ask question to LLM based on Org Roam.
+If an optional argument OTHER is buffer,
+use the buffer instead of current buffer.
+If OTHER is not buffer nor nil, or call with `\\[universal-argument]',
+choose other buffer interactively."
+  (interactive "P")
+  (orr--ask
+   (if other
+	   (with-current-buffer
+		   (if (bufferp other) other
+			 (read-buffer "Buffer: "))
+		 (buffer-substring))
+	 (buffer-string))))
 
 (provide 'org-roam-rag)
 ;;; org-roam-rag.el ends here
