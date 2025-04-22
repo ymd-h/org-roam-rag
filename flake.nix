@@ -11,7 +11,7 @@
       in rec {
         lib.mkPackage = ({ epkgs }: (epkgs.trivialBuild rec {
           pname = "org-roam-rag";
-          version = "v0.0.1";
+          version = "v1.0.0";
           src = pkgs.lib.fileset.toSource {
             root = ./.;
             fileset = pkgs.lib.fileset.unions [
