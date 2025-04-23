@@ -22,6 +22,7 @@
             llm
             markdown-mode
             org-roam
+            ox-gfm
           ];
           buildInputs = packageRequires;
         }));
